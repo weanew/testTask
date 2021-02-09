@@ -17,3 +17,15 @@ def generator_task1(request: str) -> str:
 
     return output
 
+
+def generator_task2(request: str) -> str:
+    request = json.loads(request)
+    output = ''
+
+    for item in request:
+        for key in item:
+            element = ET.Element(key)
+            element.text = item[key]
+            output += ET.tostring(element).decode()
+
+    return output
