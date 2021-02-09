@@ -1,4 +1,5 @@
 import json
+import re
 from xml.etree import ElementTree as ET
 
 
@@ -82,4 +83,31 @@ def generator_task4(request: str) -> str:
     request = json.loads(request)
     elements = json_iter(request)
     return ET.tostring(elements)
+
+
+def generator_task5(request: str) -> str:
+    request = json.loads(request)
+    output = ''
+
+    for key, value in request.items():
+        attrs = re.split('([#.])', key)
+        element = ET.Element(attrs[0])
+        classes = []
+        ids = []
+
+        for i in range(2, len(attrs), 2):
+            if attrs[i - 1] == '.':
+                classes.append(attrs[i])
+            elif attrs[i - 1] == '#':
+                ids.append(attrs[i])
+
+        if classes:
+            element.set('class', ' '.join(classes))
+        if ids:
+            element.set('id', ' '.join(ids))
+
+        element.text = value
+        output += ET.tostring(element).decode()
+
+    return output
 
