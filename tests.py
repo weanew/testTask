@@ -49,6 +49,25 @@ class TestGenerator(unittest.TestCase):
                    '<div>Hello, World 2!</div></li></ul>'
         self.assertEqual(generator_task3(request), response)
 
+    def test_generator_task4(self):
+        request = """
+                    [
+                       {
+                          "span": "Title #1",
+                          "content": [
+                            {
+                                "p": "example 1",
+                                "header": "header 1"    
+                            }
+                          ]
+                       },
+                       {"div": "div 1"}
+                    ]
+                    """
+        response = '<ul><li><span>Title #1</span><content><ul><li><p>Example 1</p><header>header 1</header></li></ul>' \
+                   '</content></li><li><div>div 1</div></li></ul>'
+        self.assertEqual(generator_task4(request), response)
+
 
 if __name__ == '__main__':
     unittest.main()
