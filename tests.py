@@ -68,6 +68,17 @@ class TestGenerator(unittest.TestCase):
                    '</content></li><li><div>div 1</div></li></ul>'
         self.assertEqual(generator_task4(request), response)
 
+    def test_generator_task5(self):
+        request = """
+                    {
+                       "p.my-class#my-id":"hello",
+                       "p.my-class1.my-class2":"example<a>asd</a>"
+                    }
+                    """
+        response = '<p class="my-class" id="my-id">hello</p><p class="my-class1 my-class2">example&lt;a&gt;asd&lt;' \
+                   '/a&gt;</p>'
+        self.assertEqual(generator_task5(request), response)
+
 
 if __name__ == '__main__':
     unittest.main()
