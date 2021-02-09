@@ -1,5 +1,5 @@
 import unittest
-from html_generator.generator import generator_task1, generator_task2
+from html_generator.generator import *
 
 
 class TestGenerator(unittest.TestCase):
@@ -31,6 +31,23 @@ class TestGenerator(unittest.TestCase):
                     """
         response = '<h3>Title #1</h3><div>Hello, World 1!</div>'
         self.assertEqual(generator_task2(request), response)
+
+    def test_generator_task3(self):
+        request = """
+                    [
+                       {
+                          "h3": "Title #1",
+                          "div": "Hello, World 1!"
+                       },
+                       {
+                          "h3": "Title #2",
+                          "div": "Hello, World 2!"
+                       }
+                    ]
+                    """
+        response = '<ul><li><h3>Title #1</h3><div>Hello, World 1!</div></li><li><h3>Title #2</h3>' \
+                   '<div>Hello, World 2!</div></li></ul>'
+        self.assertEqual(generator_task3(request), response)
 
 
 if __name__ == '__main__':
