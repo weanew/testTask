@@ -58,31 +58,34 @@ def generator_task4(request: str) -> str:
                 sub_element = json_iter(element)
                 if isinstance(sub_element, list):
                     for elem in sub_element:
-                        ET.SubElement(li, elem)
+                        li.append(elem)
                 else:
-                    ET.SubElement(li, sub_element)
+                    li.append(sub_element)
+            # print(ET.tostring(tag).decode())
             return tag
         else:
             tags = []
             for k, v in item.items():
                 if isinstance(v, dict) or isinstance(v, list):
-                    print(k + ":")
+                    # print(k + ":")
                     tag = ET.Element(k)
                     sub_elem = json_iter(v)
-                    ET.SubElement(tag, sub_elem)
+                    tag.append(sub_elem)
+                    # print(ET.tostring(tag).decode())
                     tags.append(tag)
                     continue
                 else:
-                    print(k + ":" + str(v))
+                    # print(k + ":" + str(v))
                     element = ET.Element(k)
                     element.text = v
+                    # print(ET.tostring(element).decode())
                     tags.append(element)
 
             return tags
 
     request = json.loads(request)
     elements = json_iter(request)
-    return ET.tostring(elements)
+    return ET.tostring(elements).decode()
 
 
 def generator_task5(request: str) -> str:
@@ -111,3 +114,21 @@ def generator_task5(request: str) -> str:
 
     return output
 
+
+if __name__ == '__main__':
+    req = """
+            [
+               {
+                  "span": "Title #1",
+                  "content": [
+                    {
+                        "p": "example 1",
+                        "header": "header 1"    
+                    }
+                  ]
+               },
+               {"div": "div 1"}
+            ]
+            """
+    res = generator_task4(req)
+    print(res)
