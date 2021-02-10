@@ -3,132 +3,74 @@ import re
 from xml.etree import ElementTree as ET
 
 
-def generator_task1(request: str) -> str:
-    request = json.loads(request)
-    output = ''
+def check_html(tag: str) -> dict:
+    tag_attributes = {}
+    classes = []
+    ids = []
+    attrs = re.split('([#.])', tag)
+    tag_attributes['tag'] = attrs[0]
+    if len(attrs) > 1:
+        for i in range(2, len(attrs), 2):
+            if attrs[i - 1] == '.':
+                classes.append(attrs[i])
+            elif attrs[i - 1] == '#':
+                ids.append(attrs[i])
+        tag_attributes['classes'] = classes
+        tag_attributes['ids'] = ids
 
-    for item in request:
-        if item['title'] and item['body']:
-            title = ET.Element('h1')
-            title.text = item['title']
-            output += ET.tostring(title).decode()
-            body = ET.Element('p')
-            body.text = item['body']
-            output += ET.tostring(body).decode()
-
-    return output
-
-
-def generator_task2(request: str) -> str:
-    request = json.loads(request)
-    output = ''
-
-    for item in request:
-        for key in item:
-            element = ET.Element(key)
-            element.text = item[key]
-            output += ET.tostring(element).decode()
-
-    return output
+    return tag_attributes
 
 
-def generator_task3(request: str) -> str:
-    request = json.loads(request)
-    output = ''
-
-    if type(request) is list:
-        ul = ET.Element('ul')
-        for item in request:
-            li = ET.SubElement(ul, 'li')
-            for key in item:
-                element = ET.SubElement(li, key)
-                element.text = item[key]
-        output += ET.tostring(ul).decode()
-
-    return output
+def create_tag(key: str) -> "ET.Element":
+    tag_attributes = check_html(key)
+    tag = ET.Element(tag_attributes['tag'])
+    if len(tag_attributes) > 1:
+        if len(tag_attributes['classes']) > 0:
+            tag.set('class', ' '.join(tag_attributes['classes']))
+        if len(tag_attributes['ids']) > 0:
+            tag.set('id', ' '.join(tag_attributes['ids']))
+    return tag
 
 
-def generator_task4(request: str) -> str:
+def main_generator(request: str) -> str:
 
     def json_iter(item):
         if isinstance(item, list):
-            tag = ET.Element('ul')
+            root = ET.Element('ul')
             for element in item:
-                li = ET.SubElement(tag, 'li')
+                li = ET.SubElement(root, 'li')
                 sub_element = json_iter(element)
                 if isinstance(sub_element, list):
                     for elem in sub_element:
                         li.append(elem)
                 else:
                     li.append(sub_element)
-            # print(ET.tostring(tag).decode())
-            return tag
+            return root
         else:
             tags = []
             for k, v in item.items():
                 if isinstance(v, dict) or isinstance(v, list):
-                    # print(k + ":")
-                    tag = ET.Element(k)
+                    tag = create_tag(k)
                     sub_elem = json_iter(v)
-                    tag.append(sub_elem)
-                    # print(ET.tostring(tag).decode())
+                    if isinstance(sub_elem, list):
+                        for elem in sub_elem:
+                            tag.append(elem)
+                    else:
+                        tag.append(sub_elem)
                     tags.append(tag)
                     continue
                 else:
-                    # print(k + ":" + str(v))
-                    element = ET.Element(k)
-                    element.text = v
-                    # print(ET.tostring(element).decode())
-                    tags.append(element)
+                    tag = create_tag(k)
+                    tag.text = v
+                    tags.append(tag)
 
             return tags
 
     request = json.loads(request)
     elements = json_iter(request)
+    if isinstance(elements, list):
+        output = ''
+        for item in elements:
+            output += ET.tostring(item).decode()
+        return output
     return ET.tostring(elements).decode()
-
-
-def generator_task5(request: str) -> str:
-    request = json.loads(request)
-    output = ''
-
-    for key, value in request.items():
-        attrs = re.split('([#.])', key)
-        element = ET.Element(attrs[0])
-        classes = []
-        ids = []
-
-        for i in range(2, len(attrs), 2):
-            if attrs[i - 1] == '.':
-                classes.append(attrs[i])
-            elif attrs[i - 1] == '#':
-                ids.append(attrs[i])
-
-        if classes:
-            element.set('class', ' '.join(classes))
-        if ids:
-            element.set('id', ' '.join(ids))
-
-        element.text = value
-        output += ET.tostring(element).decode()
-
-    return output
-
-
-if __name__ == '__main__':
-    req = """
-            [
-               {
-                  "span": "Title #1",
-                  "content": [
-                    {
-                        "p": "example 1",
-                        "header": "header 1"    
-                    }
-                  ]
-               },
-               {"div": "div 1"}
-            ]
-            """
-    res = generator_task4(req)
-    print(res)
