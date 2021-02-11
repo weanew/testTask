@@ -9,20 +9,29 @@ class Connector:
         self.socket_session = None
 
     async def connect(self, uri: str) -> "Connector":
-        self.socket_session = await websockets.connect(uri).__aenter__()
+        if self.socket_session is None:
+            self.socket_session = await websockets.connect(uri).__aenter__()
+        else:
+            raise Exception("Connection already exists.")
         return self
 
     async def disconect(self):
-        await self.socket_session.close()
-        self.socket_session = None
+        if self.socket_session is not None:
+            await self.socket_session.close()
+            self.socket_session = None
+        else:
+            raise Exception("Connection does not exist.")
 
     async def call(self, **kwargs) -> str:
-        msg = json.dumps(kwargs)
-        ws = self.socket_session
-        await ws.send(msg)
+        if self.socket_session is not None:
+            msg = json.dumps(kwargs)
+            ws = self.socket_session
+            await ws.send(msg)
 
-        response = await ws.recv()
-        return response
+            response = await ws.recv()
+            return response
+        else:
+            raise Exception("Connection does not exist.")
 
 
 async def run_con(uri: str) -> str:
