@@ -59,7 +59,6 @@ class Connector:
             socket_lst = await self.__get_ready_socket()
             socket_lst[1] = 'busy'
             await socket_lst[0].send(msg)
-            print('stop here')
             response = await socket_lst[0].recv()
             socket_lst[1] = 'ready'
             return response
